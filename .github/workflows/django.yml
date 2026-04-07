@@ -1,4 +1,4 @@
-name: Django CI with Uvicorn
+name: Django CI with Uvicorn & Poetry
 
 on:
   push:
@@ -22,16 +22,19 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install Dependencies
+      - name: Install Poetry
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Dependencies via Poetry
+        run: poetry install --no-interaction --no-ansi
 
       - name: Run Tests
-        run: python manage.py test
+        run: poetry run python manage.py test
 
-      - name: Run Django with Uvicorn (check server)
+      - name: Run Django with Uvicorn (smoke test)
         run: |
-          uvicorn project_name.asgi:application --host 0.0.0.0 --port 8000 --reload --log-level info &
+          poetry run uvicorn project_name.asgi:application --host 0.0.0.0 --port 8000 --reload --log-level info &
           sleep 5
           curl -f http://127.0.0.1:8000/ || exit 1
