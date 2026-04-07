@@ -25,12 +25,12 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install django uvicorn
 
       - name: Run Tests
         run: python manage.py test
 
-      - name: Run Django with Uvicorn (check server)
+      - name: Run Django with Uvicorn (smoke test)
         run: |
           uvicorn project_name.asgi:application --host 0.0.0.0 --port 8000 --reload --log-level info &
           sleep 5
